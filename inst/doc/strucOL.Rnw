@@ -1,0 +1,62 @@
+
+%
+% NOTE -- ONLY EDIT THE .Rnw FILE!!!  The .tex file is
+% likely to be overwritten.
+%
+\documentclass[12pt]{article}
+
+\usepackage{amsmath,pstricks}
+\usepackage[authoryear,round]{natbib}
+\usepackage{hyperref}
+
+
+\textwidth=6.2in
+\textheight=8.5in
+%\parskip=.3cm
+\oddsidemargin=.1in
+\evensidemargin=.1in
+\headheight=-.3in
+
+\newcommand{\scscst}{\scriptscriptstyle}
+\newcommand{\scst}{\scriptstyle}
+
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\texttt{#1}}}
+\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+
+\textwidth=6.2in
+
+\bibliographystyle{plainnat} 
+ 
+\begin{document}
+%\setkeys{Gin}{width=0.55\textwidth}
+
+\title{Structured Contamination for Outlier Detection}
+\author{VJ Carey}
+\maketitle
+
+We will compare mdqc and affyMvout with respect to restoration
+of sensitivity of analyses of SpikeIn data.
+
+\section{The spikein data}
+
+We will use the first 12 arrays in the hgu133atag samples provided
+in Bioconductor package SpikeIn.
+
+<<doaa>>=
+library(SpikeIn)
+if (!exists("s12")) {
+  data(SpikeIn133)
+  s12 = SpikeIn133[,1:12]
+}
+@
+
+The spike-in design is encoded in the phenoData structure.
+
+
+
+\end{document}

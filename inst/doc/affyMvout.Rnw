@@ -1,0 +1,227 @@
+
+%\VignetteIndexEntry{affyMvout -- multivariate outlier algorithm for affymetrix QA}
+%\VignetteDepends{}
+%\VignetteKeywords{Expression Analysis}
+%\VignettePackage{affyMvout}
+
+
+%
+% NOTE -- ONLY EDIT THE .Rnw FILE!!!  The .tex file is
+% likely to be overwritten.
+%
+\documentclass[12pt]{article}
+
+\usepackage{amsmath,pstricks}
+\usepackage[authoryear,round]{natbib}
+\usepackage{hyperref}
+
+
+\textwidth=6.2in
+\textheight=8.5in
+%\parskip=.3cm
+\oddsidemargin=.1in
+\evensidemargin=.1in
+\headheight=-.3in
+
+\newcommand{\scscst}{\scriptscriptstyle}
+\newcommand{\scst}{\scriptstyle}
+
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\texttt{#1}}}
+\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+
+\textwidth=6.2in
+
+\bibliographystyle{plainnat} 
+ 
+\begin{document}
+%\setkeys{Gin}{width=0.55\textwidth}
+
+\title{Affy array outlier detection via dimension reduction}
+\author{A Asare, Z Gao, V Carey}
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+
+Clinical trials groups now routinely
+produce hundreds of microarrays to generate
+measures of clinical conditions and treatment
+responses at the level of mRNA abundance.
+Objective, quantitative measures of array
+quality are important to support these projects.
+
+Suppose there are $N$ affymetrix arrays to which $N$
+independent samples have been hybridized.
+The affyMvout package computes $Q$
+quality measures which constitute array-specific
+features.  These features are then analyzed
+in two steps.  First, principal components analysis
+is applied to the $N \times Q$ feature matrix.
+Second, parametric multivariate outlier detection with
+calibration for multiple testing is applied
+to a subset of the resulting principal components.
+Arrays identified as outliers by this procedure
+are then subject to additional inspection and/or
+exclusion as warranted.
+
+In this vignette we illustrate application of the
+procedure for a `negative control' (raw MAQC data) and
+several constructed quality defect situations. 
+
+\section{The MAQC subset}
+
+We consider an AffyBatch supplied with the Bioconductor
+MAQCsubset package.  Marginal boxplots of raw intensity
+data are provided in the next figure.   Sample labels
+are decoded AFX \_ [lab] \_ [type] [replicate] .CEL
+where [lab] $\in (1,2,3)$, [type] denotes mixture
+type (A = 100\% USRNA, B = 100\% Ambion brain, C = 75\% USRNA,
+25\% brain, D = 25\% USRNA, 75\% brain), and replicate $\in (1,2)$.
+
+<<doapan>>=
+library(affyMvout)
+library(MAQCsubset)
+if (!exists("afxsub")) data(afxsub)
+sn = sampleNames(afxsub)
+if (nchar(sn)[1] > 6) {
+  sn = substr(sn, 3, 8)
+  sampleNames(afxsub) = sn
+}
+<<lkda,fig=TRUE>>=
+opar = par(no.readonly=TRUE)
+par(mar=c(10,5,5,5), las=2)
+boxplot(afxsub, main="MAQC subset", 
+  col=rep(c("green", "blue", "orange"), c(8,8,8)))
+par(opar)
+@
+
+\subsection{QA diagnostics}
+
+Of interest are measures of RNA degradation:
+<<lkadas,fig=TRUE>>=
+#afxsubDEG = AffyRNAdeg(afxsub)
+#save(afxsubDEG, file="afxsubDEG.rda")
+library(affyMvout)
+data(afxsubDEG)
+plotAffyRNAdeg(afxsubDEG, 
+  col=rep(c("green", "blue", "orange"),c(8,8,8)))
+@
+
+and the general `simpleaffy' QC display:
+<<asdad,fig=TRUE>>=
+#afxsubQC = qc(afxsub)
+#save(afxsubQC, file="afxsubQC.rda")
+data(afxsubQC)
+plot(afxsubQC)
+@
+
+The affyPLM package fits probe-level robust regressions
+to obtain probe-set summaries.  
+
+<<splm>>=
+library(affyPLM)
+#if (file.exists("splm.rda")) load("splm.rda")
+#if (!exists("splm")) splm = fitPLM(afxsub)
+splm = fitPLM(afxsub)
+#save(splm, file="splm.rda")
+@
+
+<<don>>=
+png(file="doim.png")
+par(mar=c(7,5,5,5),mfrow=c(2,2),las=2)
+NUSE(splm, ylim=c(.85,1.3))
+RLE(splm)
+image(splm, which=2, type="sign.resid")
+image(splm, which=5, type="sign.resid")
+<<adadadadadad,echo=FALSE,results=hide>>=
+dev.off()
+@
+\includegraphics{doim}
+
+These chips seem to have adequate quality, although
+there is some indication that the first four are a bit
+different with respect to variability.
+
+\subsection{Outlier detection using diagnostics}
+
+Let's apply the diagnostic-dimension reduction-multivariate 
+outlier procedure \texttt{ArrayOutliers}.
+By default we have a type I error rate of 0.05.
+
+<<doao>>=
+AO = ArrayOutliers(afxsub, qcOut=afxsubQC, 
+  plmOut=splm, degOut=afxsubDEG)
+nrow(AO[["outl"]])
+@
+
+We see that there are no outliers declared.  This seems
+a reasonable result for arrays that were hybridized in the
+context of a QC protocol.  Let us apply the mdqc procedure.
+As input this takes any matrix of quality indicators.
+The third component of our ArrayOutliers result provides
+these as computed using simpleaffy qc(), affy AffyRNAdeg,
+and affyPLM NUSE and RLE.
+The QC measures for the first two chips are:
+<<doaaa>>=
+AO[[3]][1:2, 2:10]
+@
+
+We now use the mdqc package with MVE robust covariance
+estimation.
+<<doz>>=
+library(mdqc)
+mdq = mdqc( AO[[3]][,2:10], robust="MVE" )
+mdq
+@
+We see that a number of the arrays are determined to
+be outlying by this procedure according to several thresholds.
+
+
+\section{Intensity contamination in the spikein data}
+
+We begin with a simple demonstration of a contamination
+procedure that simulates severe blobby interference with
+hybridization.
+
+<<doada>>=
+data(s12c)
+<<aaadas,eval=FALSE>>=
+image(s12c[,1])
+@
+
+\includegraphics{s12c}
+
+For this AffyBatch instance, we have contaminated the first two
+arrays in this way.  We now apply the ArrayOutliers procedure:
+<<doaaaasdas,cache=TRUE>>=
+aos12c = ArrayOutliers(s12c)
+<<lkres>>=
+aos12c[[1]]
+@
+We find three arrays declared to be outlying.  At the different
+candidate significance levels we have:
+<<lkaaa>>=
+aos12c[[4]]
+@
+So at the 0.01 level we have identified only the contaminated arrays.
+
+We apply mdqc in the same manner.
+<<doma>>=
+mdqc(aos12c[[3]][,2:10], robust="MVE")
+@
+
+We see that only one of the contaminated arrays is identified by
+this procedure.
+This may be an instance of masking.
+
+<<lksess>>=
+sessionInfo()
+@
+
+\end{document}

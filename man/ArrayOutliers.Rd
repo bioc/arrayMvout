@@ -1,0 +1,50 @@
+\name{ArrayOutliers}
+\alias{ArrayOutliers}
+\title{Multivariate outlier detection based on PCA of
+QA statistics  }
+\description{Multivariate outlier detection based on PCA of
+QA statistics  }
+\usage{
+ArrayOutliers (data, alpha = 0.05, alphaSeq = c(0.01, 0.05, 0.1), 
+    qcOutput = NULL, plmOutput = NULL, degOutput = NULL, prscale = TRUE, 
+    pc2use = 1:3) 
+}
+\arguments{
+  \item{data}{ an (affy) AffyBatch instance with at least 11 samples}
+  \item{alpha}{ false positive rate for outlier detection, adjusting
+for multiple comparisons according to Caroni and Prescott's
+adaptation of Rosner (1983); full report based on this choice of alpha}
+  \item{alphaSeq}{vector of alpha candidates to be quickly tried for
+short report}
+  \item{qcOutput}{optional result of simpleaffy qc() to speed computations}
+  \item{plmOutput}{optional result of affyPLM fitPLM() to speed computations}
+  \item{degOutput}{optional result of affy AffyRNAdeg() to speed computations}
+  \item{prscale}{scaling option for prcomp}
+  \item{pc2use}{selection of principal components to use for outlier detection}
+}
+%\details{
+%}
+\value{
+a list with a partition of samples into two data frames (inl and
+outl) with QA summary statistics from various packages
+}
+%\references{  }
+\author{Z. Gao et al.}
+%\note{  }
+
+
+\seealso{  }
+
+\examples{
+library(simpleaffy)
+setQCEnvironment("hgu133acdf")  # tag array not known...
+data(s12c)
+data(s12cQC)
+data(s12cDEG)
+library(affyPLM)
+s12cPset = fitPLM(s12c)
+ao = ArrayOutliers(s12c, qcOut=s12cQC, plmOut=s12cPset, degOut=s12cDEG)
+ao[[1]]
+ao[[3]]
+}
+\keyword{ models }
