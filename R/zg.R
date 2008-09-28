@@ -12,7 +12,21 @@ setClass("arrOutStruct", contains="list")
 ###         Non-outlier arrays with QA metrics
 #########################################################
 
-ArrayOutliers <- function(data, alpha=.05, alphaSeq=c(0.01, 0.05, 0.10),
+setGeneric("ArrayOutliers", function(data, alpha, alphaSeq=c(0.01, 0.05, 0.10), ...) {
+ standardGeneric("ArrayOutliers") })
+
+setMethod("ArrayOutliers", c("ANY", "missing", "missing"), 
+   function( data, alpha, alphaSeq ) stop("must supply second argument: false outlier labeling rate"))
+   
+ 
+setMethod("ArrayOutliers", c("AffyBatch", "numeric", "ANY"),
+  function(data, alpha, alphaSeq=c(.01, .05, .10), 
+   qcOutput=NULL, plmOutput=NULL, degOutput=NULL, prscale=TRUE, 
+   pc2use = 1:3){
+   .affyArrayOutliers( data, alpha, alphaSeq, qcOutput, plmOutput,
+     degOutput, prscale, pc2use ) } )
+
+.affyArrayOutliers <- function(data, alpha=.05, alphaSeq=c(0.01, 0.05, 0.10),
    qcOutput=NULL, plmOutput=NULL, degOutput=NULL, prscale=TRUE, 
    pc2use = 1:3){
 
@@ -115,7 +129,12 @@ QCoutlier <- subset(QAback, is.element(QAback$samp, QCPCoutlier));
 ### QA profile with outliers excluded
 QCnooutlier <- subset(QAback, !is.element(QAback$samp, QCPCoutlier));
 #write.table(QCnooutlier, 'Array_QA_outlier_Excluded.csv', col.names=NA, sep=",");
-ans = list(outl=QCoutlier, inl=QCnooutlier, QA=QAback, PC.wilk.all=PC.wilk.all, 
+inl = QCnooutlier
+rownames(inl) = inl$samp
+inl = inl[-1]
+rownames(QAback)  = QAback$samp
+QAback = QAback[-1]
+ans = list(outl=QCoutlier, inl=inl, QA=QAback, PC.wilk.all=PC.wilk.all, 
  alphaSeq=alphaSeq,
  Pset=Pset, QCset=Data.qc, DEGset=RNAdeg)
 
@@ -124,17 +143,53 @@ new("arrOutStruct", ans)
 
 setMethod("show", "arrOutStruct", function(object) {
 cat("ArrayOutliers result.\n")
-cat("There were ", nsamp <- nrow(object[[3]]), " samples with ",
+if (is.null(object[[1]])) {
+ cat("No outliers. First row of QC features\n")
+ print(object[[3]][1,,drop=FALSE])
+}
+else {
+  cat("There were ", nsamp <- nrow(object[[3]]), " samples with ",
    nout <- nrow(object[[1]]), " outliers detected.\n")
-if (nout > 0) {
- cat("Features of outlying arrays:\n")
- print(object[[1]])
+  if (nout > 0) {
+   cat("Coordinate-wise means of inlying arrays:\n")
+   print(apply(object$inl,2,mean,na.rm=TRUE))
+   cat("Features of outlying arrays:\n")
+   print(object$outl)
  }
+}
 })
   
    
 setMethod("plot", "arrOutStruct", function(x, y, ...) {
- biplot(prcomp(x[[3]][,-1]))  # drop samp column
+ biplot(prcomp(x$QA),main="all QC stats, PC1-2")  
 })
 
 
+setMethod("ArrayOutliers", c("LumiBatch", "numeric", "ANY"),
+  function(data, alpha, alphaSeq=c(.01, .05, .10), 
+   qcOutput=NULL, plmOutput=NULL, degOutput=NULL, prscale=TRUE, 
+   pc2use = 1:3){
+   .lumiArrayOutliers( data, alpha, alphaSeq, qcOutput, plmOutput,
+     degOutput, prscale, pc2use ) } )
+
+.lumiArrayOutliers <- function(data, alpha=.05, alphaSeq=c(0.01, 0.05, 0.10),
+   qcOutput=NULL, plmOutput=NULL, degOutput=NULL, prscale=TRUE, 
+   pc2use = 1:3){
+   LQ = t(lumiQ(data)@QC$sampleSummary)
+   PLQ = prcomp(LQ, scale=prscale)$x[, pc2use]
+   odat = mv.calout.detect(PLQ,alpha=alpha)
+   PC.wilk.all <- lapply(alphaSeq, function(alpha)mv.calout.detect(PLQ, alpha=alpha));
+   if (is.na(odat$inds[1])) {
+       QCoutlier=NULL
+       QCnooutlier=PLQ
+       }
+   else {
+       QCoutlier=PLQ[odat$inds,,drop=FALSE]
+       QCnooutlier=PLQ[-odat$inds,,drop=FALSE]
+       }
+ans = list(outl=QCoutlier, inl=QCnooutlier, QA=PLQ, PC.wilk.all=PC.wilk.all, 
+ alphaSeq=alphaSeq, Pset=NULL, QCset=LQ, DEGset=NULL)
+new("arrOutStruct", ans)
+}
+   
+   

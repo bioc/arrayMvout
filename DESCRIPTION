@@ -1,13 +1,14 @@
 Package: arrayMvout
 Title: multivariate outlier detection for expression array QA
-Version: 0.1.5
+Version: 0.99.0
 Author: Z. Gao, A. Asare, R. Wang, V. Carey
 Description: This package supports the application of diverse quality metrics to
 	AffyBatch instances, summarizing these metrics via PCA, and then
 	performing parametric outlier detection on the PCs to identify
 	aberrant arrays with a fixed Type I error rate
-Depends: R (>= 2.6.0), tools, methods, utils, Biobase, affy,
+Depends: R (>= 2.6.0), tools, methods, utils, parody, Biobase, affy, lumi,
 	affyPLM, affydata, simpleaffy, affyContam
+Suggests: lumiBarnes, mdqc
 Maintainer: V. Carey <stvjc@channing.harvard.edu>
 License: The Artistic License, Version 2.0
 LazyLoad: yes

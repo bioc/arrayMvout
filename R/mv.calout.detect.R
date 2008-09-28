@@ -3,6 +3,8 @@
 # entry, but until parody is published, we provide
 # source directly
 
+if (FALSE) {
+
 lams.unstr <- function(n, p, k, alpha = 0.05)
 {
 qbeta(alpha/(n - (0:(k - 1))), (n - (0:(k - 1)) - p - 1)/2, p/2)
@@ -81,3 +83,4 @@ C.unstr <- function(x)
  }
 
 
+} # end of IF FALSE
