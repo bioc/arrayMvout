@@ -1,8 +1,8 @@
 
-%\VignetteIndexEntry{affyMvout -- multivariate outlier algorithm for affymetrix QA}
+%\VignetteIndexEntry{arrayMvout -- multivariate outlier algorithm for expression arrays}
 %\VignetteDepends{}
 %\VignetteKeywords{Expression Analysis}
-%\VignettePackage{affyMvout}
+%\VignettePackage{arrayMvout}
 
 
 %
