@@ -5,6 +5,9 @@
 \alias{s12c} 
 \alias{s12cDEG} 
 \alias{s12cQC}
+\alias{ILM1}
+\alias{itnQA}
+\alias{maqcQA}
 \title{Multivariate outlier detection based on PCA of
 QA statistics  }
 \description{Multivariate outlier detection based on PCA of
@@ -35,6 +38,10 @@ Additional parameters may be supplied
 Data elements afxsubDEG, afxsubQC, s12cDEG, s12cQC are precomputed RNA degradation
 and simpleaffy qc() results; s12c is an AffyBatch with digital contamination of some
 samples.
+
+Data elements maqcQA and itnQA are affymetrix QC statistics on large
+collections of arrays.  Data element ILM1 is a LumiBatch of the Illumina-submitted
+MAQC raw data, 19 arrays.  (Conveyed by Leming Shi, personal communication).
 }
 \value{
 an instance of arrOutStruct class, a list with a partition of samples into two data frames (inl and
