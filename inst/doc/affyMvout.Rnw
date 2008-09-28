@@ -152,10 +152,9 @@ different with respect to variability.
 
 Let's apply the diagnostic-dimension reduction-multivariate 
 outlier procedure \texttt{ArrayOutliers}.
-By default we have a type I error rate of 0.05.
 
 <<doao>>=
-AO = ArrayOutliers(afxsub, qcOut=afxsubQC, 
+AO = ArrayOutliers(afxsub, alpha=0.05, qcOut=afxsubQC, 
   plmOut=splm, degOut=afxsubDEG)
 nrow(AO[["outl"]])
 @
@@ -199,8 +198,9 @@ image(s12c[,1])
 
 For this AffyBatch instance, we have contaminated the first two
 arrays in this way.  We now apply the ArrayOutliers procedure:
+
 <<doaaaasdas,cache=TRUE>>=
-aos12c = ArrayOutliers(s12c)
+aos12c = ArrayOutliers(s12c, alpha=0.05)
 <<lkres>>=
 aos12c[[1]]
 @
