@@ -168,14 +168,14 @@ these as computed using simpleaffy qc(), affy AffyRNAdeg,
 and affyPLM NUSE and RLE.
 The QC measures for the first two chips are:
 <<doaaa>>=
-AO[[3]][1:2, 2:10]
+AO[[3]][1:2, ]
 @
 
 We now use the mdqc package with MVE robust covariance
 estimation.
 <<doz>>=
 library(mdqc)
-mdq = mdqc( AO[[3]][,2:10], robust="MVE" )
+mdq = mdqc( AO[[3]], robust="MVE" )
 mdq
 @
 We see that a number of the arrays are determined to
@@ -213,7 +213,7 @@ So at the 0.01 level we have identified only the contaminated arrays.
 
 We apply mdqc in the same manner.
 <<doma>>=
-mdqc(aos12c[[3]][,2:10], robust="MVE")
+mdqc(aos12c[[3]], robust="MVE")
 @
 
 We see that only one of the contaminated arrays is identified by
