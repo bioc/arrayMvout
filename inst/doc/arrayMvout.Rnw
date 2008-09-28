@@ -58,7 +58,7 @@ quality are important to support these projects.
 
 Suppose there are $N$ affymetrix arrays to which $N$
 independent samples have been hybridized.
-The affyMvout package computes $Q$
+The arrayMvout package computes $Q$
 quality measures which constitute array-specific
 features.  These features are then analyzed
 in two steps.  First, principal components analysis
@@ -85,7 +85,7 @@ type (A = 100\% USRNA, B = 100\% Ambion brain, C = 75\% USRNA,
 25\% brain, D = 25\% USRNA, 75\% brain), and replicate $\in (1,2)$.
 
 <<doapan>>=
-library(affyMvout)
+library(arrayMvout)
 library(MAQCsubset)
 if (!exists("afxsub")) data(afxsub)
 sn = sampleNames(afxsub)
@@ -107,7 +107,7 @@ Of interest are measures of RNA degradation:
 <<lkadas,fig=TRUE>>=
 #afxsubDEG = AffyRNAdeg(afxsub)
 #save(afxsubDEG, file="afxsubDEG.rda")
-library(affyMvout)
+library(arrayMvout)
 data(afxsubDEG)
 plotAffyRNAdeg(afxsubDEG, 
   col=rep(c("green", "blue", "orange"),c(8,8,8)))
