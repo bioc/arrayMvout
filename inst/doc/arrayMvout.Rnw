@@ -188,7 +188,10 @@ We begin with a simple demonstration of a contamination
 procedure that simulates severe blobby interference with
 hybridization.
 
-<<doada>>=
+The code below is unevaluated to speed execution.  Set eval=TRUE
+on all chunks to see the actual process.
+
+<<doada,eval=FALSE>>=
 require(mvoutData)
 data(s12c)
 <<aaadas,eval=FALSE>>=
@@ -200,20 +203,20 @@ image(s12c[,1])
 For this AffyBatch instance, we have contaminated the first two
 arrays in this way.  We now apply the ArrayOutliers procedure:
 
-<<doaaaasdas,cache=TRUE>>=
+<<doaaaasdas,eval=FALSE>>=
 aos12c = ArrayOutliers(s12c, alpha=0.05)
-<<lkres>>=
+<<lkres,eval=FALSE>>=
 aos12c[[1]]
 @
 We find three arrays declared to be outlying.  At the different
 candidate significance levels we have:
-<<lkaaa>>=
+<<lkaaa,eval=FALSE>>=
 aos12c[[4]]
 @
 So at the 0.01 level we have identified only the contaminated arrays.
 
 We apply mdqc in the same manner.
-<<doma>>=
+<<doma,eval=FALSE>>=
 mdqc(aos12c[[3]], robust="MVE")
 @
 
