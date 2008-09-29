@@ -57,18 +57,21 @@ outl) with QA summary statistics
 \examples{
 library(simpleaffy)
 setQCEnvironment("hgu133acdf")  # tag array not known...
-data(s12c)
-data(s12cQC)
-data(s12cDEG)
-library(affyPLM)
-s12cPset = fitPLM(s12c)
-ao = ArrayOutliers(s12c, alpha=0.05, qcOut=s12cQC, plmOut=s12cPset, degOut=s12cDEG)
-ao
-library(lumiBarnes)
-data(lumiBarnes)
-ArrayOutliers(lumiBarnes, alpha=0.05)
-lb2 = lumiBarnes
-exprs(lb2)[1:20000,1:2] = 10000*exprs(lb2)[1:20000,1:2]
-ArrayOutliers(lb2, alpha=0.05)
+if (require(mvoutData)) {
+ data(s12c)
+ data(s12cQC)
+ data(s12cDEG)
+ library(affyPLM)
+ s12cPset = fitPLM(s12c)
+ ao = ArrayOutliers(s12c, alpha=0.05, qcOut=s12cQC, plmOut=s12cPset, degOut=s12cDEG)
+ ao
+ }
+if (require(lumiBarnes)) {
+ data(lumiBarnes)
+ ArrayOutliers(lumiBarnes, alpha=0.05)
+ lb2 = lumiBarnes
+ exprs(lb2)[1:20000,1:2] = 10000*exprs(lb2)[1:20000,1:2]
+ ArrayOutliers(lb2, alpha=0.05)
+ }
 }
 \keyword{ models }

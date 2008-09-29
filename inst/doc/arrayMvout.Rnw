@@ -189,6 +189,7 @@ procedure that simulates severe blobby interference with
 hybridization.
 
 <<doada>>=
+require(mvoutData)
 data(s12c)
 <<aaadas,eval=FALSE>>=
 image(s12c[,1])
