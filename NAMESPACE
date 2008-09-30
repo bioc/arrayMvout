@@ -1,0 +1,9 @@
+
+import(tools)
+
+importFrom("graphics", "plot")
+
+exportClasses("arrOutStruct")
+
+exportMethods(ArrayOutliers, plot, show)
+

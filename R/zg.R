@@ -23,8 +23,11 @@ setMethod("ArrayOutliers", c("AffyBatch", "numeric", "ANY"),
   function(data, alpha, alphaSeq=c(.01, .05, .10), 
    qcOutput=NULL, plmOutput=NULL, degOutput=NULL, prscale=TRUE, 
    pc2use = 1:3){
-   .affyArrayOutliers( data, alpha, alphaSeq, qcOutput, plmOutput,
-     degOutput, prscale, pc2use ) } )
+   theCall = match.call()
+   ans = .affyArrayOutliers( data, alpha, alphaSeq, qcOutput, plmOutput,
+     degOutput, prscale, pc2use ) 
+   new("arrOutStruct", call=theCAll, ans)
+} )
 
 .affyArrayOutliers <- function(data, alpha=.05, alphaSeq=c(0.01, 0.05, 0.10),
    qcOutput=NULL, plmOutput=NULL, degOutput=NULL, prscale=TRUE, 
@@ -137,12 +140,13 @@ QAback = QAback[-1]
 ans = list(outl=QCoutlier, inl=inl, QA=QAback, PC.wilk.all=PC.wilk.all, 
  alphaSeq=alphaSeq,
  Pset=Pset, QCset=Data.qc, DEGset=RNAdeg)
-
-new("arrOutStruct", call=match.call(), ans)
+ans
 }
 
 setMethod("show", "arrOutStruct", function(object) {
 cat("ArrayOutliers result.\n")
+cat("The call was:\n")
+print(object@call)
 if (is.null(object[[1]])) {
  cat("No outliers. First row of QC features\n")
  print(object[[3]][1,,drop=FALSE])
@@ -169,8 +173,11 @@ setMethod("ArrayOutliers", c("LumiBatch", "numeric", "ANY"),
   function(data, alpha, alphaSeq=c(.01, .05, .10), 
    qcOutput=NULL, plmOutput=NULL, degOutput=NULL, prscale=TRUE, 
    pc2use = 1:3){
-   .lumiArrayOutliers( data, alpha, alphaSeq, qcOutput, plmOutput,
-     degOutput, prscale, pc2use ) } )
+   theCall = match.call()
+   ans = .lumiArrayOutliers( data, alpha, alphaSeq, qcOutput, plmOutput,
+     degOutput, prscale, pc2use ) 
+   new("arrOutStruct", call=theCall, ans)
+} )
 
 .lumiArrayOutliers <- function(data, alpha=.05, alphaSeq=c(0.01, 0.05, 0.10),
    qcOutput=NULL, plmOutput=NULL, degOutput=NULL, prscale=TRUE, 
@@ -189,12 +196,14 @@ setMethod("ArrayOutliers", c("LumiBatch", "numeric", "ANY"),
        }
 ans = list(outl=QCoutlier, inl=QCnooutlier, QA=PLQ, PC.wilk.all=PC.wilk.all, 
  alphaSeq=alphaSeq, Pset=NULL, QCset=LQ, DEGset=NULL)
-new("arrOutStruct", call=match.call(), ans)
+#new("arrOutStruct", call=match.call(), ans)
+ans
 }
    
    
 setMethod("ArrayOutliers", c("data.frame", "numeric", "ANY"),
   function(data, alpha, alphaSeq=c(.01, .05, .10), pc2use=1:3) {
+  theCall = match.call()
   pp = prcomp(data, scale=TRUE)$x[,pc2use]
   odat = mv.calout.detect(pp, alpha=alpha)
   pall = lapply(alphaSeq, function(alpha)mv.calout.detect(pp, alpha=alpha))
@@ -208,6 +217,6 @@ setMethod("ArrayOutliers", c("data.frame", "numeric", "ANY"),
        }
 ans = list(outl=QCoutlier, inl=QCnooutlier, QA=data, PC.wilk.all=pall,
  alphaSeq=alphaSeq, Pset=NULL, QCset=NULL, DEGset=NULL)
-new("arrOutStruct", call=match.call(), ans)
+new("arrOutStruct", call=theCall, ans)
 })
  
