@@ -26,7 +26,7 @@ setMethod("ArrayOutliers", c("AffyBatch", "numeric", "ANY"),
    theCall = match.call()
    ans = .affyArrayOutliers( data, alpha, alphaSeq, qcOutput, plmOutput,
      degOutput, prscale, pc2use ) 
-   new("arrOutStruct", call=theCAll, ans)
+   new("arrOutStruct", call=theCall, ans)
 } )
 
 .affyArrayOutliers <- function(data, alpha=.05, alphaSeq=c(0.01, 0.05, 0.10),
