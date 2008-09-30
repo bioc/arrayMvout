@@ -1,4 +1,4 @@
-setClass("arrOutStruct", contains="list")
+setClass("arrOutStruct", representation(call="call"), contains="list")
 
 ###################################
 ### Microarray QA outlier detection
@@ -138,7 +138,7 @@ ans = list(outl=QCoutlier, inl=inl, QA=QAback, PC.wilk.all=PC.wilk.all,
  alphaSeq=alphaSeq,
  Pset=Pset, QCset=Data.qc, DEGset=RNAdeg)
 
-new("arrOutStruct", ans)
+new("arrOutStruct", call=match.call(), ans)
 }
 
 setMethod("show", "arrOutStruct", function(object) {
@@ -160,8 +160,8 @@ else {
 })
   
    
-setMethod("plot", "arrOutStruct", function(x, y, ...) {
- biplot(prcomp(x$QA),main="all QC stats, PC1-2")  
+setMethod("plot", "arrOutStruct", function(x, y, ..., main="all QC stats") {
+ biplot(prcomp(x$QA),main=main, ...)
 })
 
 
@@ -181,15 +181,33 @@ setMethod("ArrayOutliers", c("LumiBatch", "numeric", "ANY"),
    PC.wilk.all <- lapply(alphaSeq, function(alpha)mv.calout.detect(PLQ, alpha=alpha));
    if (is.na(odat$inds[1])) {
        QCoutlier=NULL
-       QCnooutlier=PLQ
+       QCnooutlier=LQ
        }
    else {
-       QCoutlier=PLQ[odat$inds,,drop=FALSE]
-       QCnooutlier=PLQ[-odat$inds,,drop=FALSE]
+       QCoutlier=LQ[odat$inds,,drop=FALSE]
+       QCnooutlier=LQ[-odat$inds,,drop=FALSE]
        }
 ans = list(outl=QCoutlier, inl=QCnooutlier, QA=PLQ, PC.wilk.all=PC.wilk.all, 
  alphaSeq=alphaSeq, Pset=NULL, QCset=LQ, DEGset=NULL)
-new("arrOutStruct", ans)
+new("arrOutStruct", call=match.call(), ans)
 }
    
    
+setMethod("ArrayOutliers", c("data.frame", "numeric", "ANY"),
+  function(data, alpha, alphaSeq=c(.01, .05, .10), pc2use=1:3) {
+  pp = prcomp(data, scale=TRUE)$x[,pc2use]
+  odat = mv.calout.detect(pp, alpha=alpha)
+  pall = lapply(alphaSeq, function(alpha)mv.calout.detect(pp, alpha=alpha))
+   if (is.na(odat$inds[1])) {
+       QCoutlier=NULL
+       QCnooutlier=data
+       }
+   else {
+       QCoutlier=data[odat$inds,,drop=FALSE]
+       QCnooutlier=data[-odat$inds,,drop=FALSE]
+       }
+ans = list(outl=QCoutlier, inl=QCnooutlier, QA=data, PC.wilk.all=pall,
+ alphaSeq=alphaSeq, Pset=NULL, QCset=NULL, DEGset=NULL)
+new("arrOutStruct", call=match.call(), ans)
+})
+ 

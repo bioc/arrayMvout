@@ -74,7 +74,41 @@ In this vignette we illustrate application of the
 procedure for a `negative control' (raw MAQC data) and
 several constructed quality defect situations. 
 
-\section{The MAQC subset}
+\section{Illustration with MAQC data}
+
+We have serialized sufficient information on the MAQC subset
+to allow a simple demonstration of a negative control set.
+The MAQC data should be free of outliers.
+
+We will manually search for outliers in this data resource.
+We compute principal components and take the first three.
+
+<<dddd>>=
+library(arrayMvout)
+data(maqcQA)
+mm = ArrayOutliers(maqcQA[, 3:11], alpha=.01)
+mm
+@
+
+There are no outliers found at a false labeling rate of 0.01.
+
+
+Another data resource with some problematic arrays is also included.
+<<dde>>=
+data(itnQA)
+ii = ArrayOutliers(itnQA, alpha=.01)
+ii
+@
+
+We have a simple visualization.
+<<lklk,fig=TRUE>>=
+plot(ii, choices=c(1,3))
+@
+
+\section{Manual work with the MAQC subset}
+
+All the code follwing has had evaluation turned off
+because execution times are slow.
 
 We consider an AffyBatch supplied with the Bioconductor
 MAQCsubset package.  Marginal boxplots of raw intensity
@@ -84,7 +118,7 @@ where [lab] $\in (1,2,3)$, [type] denotes mixture
 type (A = 100\% USRNA, B = 100\% Ambion brain, C = 75\% USRNA,
 25\% brain, D = 25\% USRNA, 75\% brain), and replicate $\in (1,2)$.
 
-<<doapan>>=
+<<doapan,eval=FALSE>>=
 library(arrayMvout)
 library(MAQCsubset)
 if (!exists("afxsub")) data(afxsub)
@@ -93,7 +127,7 @@ if (nchar(sn)[1] > 6) {
   sn = substr(sn, 3, 8)
   sampleNames(afxsub) = sn
 }
-<<lkda,fig=TRUE>>=
+<<lkda,fig=TRUE,eval=FALSE>>=
 opar = par(no.readonly=TRUE)
 par(mar=c(10,5,5,5), las=2)
 boxplot(afxsub, main="MAQC subset", 
@@ -104,7 +138,7 @@ par(opar)
 \subsection{QA diagnostics}
 
 Of interest are measures of RNA degradation:
-<<lkadas,fig=TRUE>>=
+<<lkadas,fig=TRUE,eval=FALSE>>=
 #afxsubDEG = AffyRNAdeg(afxsub)
 #save(afxsubDEG, file="afxsubDEG.rda")
 library(arrayMvout)
@@ -114,7 +148,7 @@ plotAffyRNAdeg(afxsubDEG,
 @
 
 and the general `simpleaffy' QC display:
-<<asdad,fig=TRUE>>=
+<<asdad,fig=TRUE,eval=FALSE>>=
 #afxsubQC = qc(afxsub)
 #save(afxsubQC, file="afxsubQC.rda")
 data(afxsubQC)
@@ -124,7 +158,7 @@ plot(afxsubQC)
 The affyPLM package fits probe-level robust regressions
 to obtain probe-set summaries.  
 
-<<splm>>=
+<<splm,eval=FALSE>>=
 library(affyPLM)
 #if (file.exists("splm.rda")) load("splm.rda")
 #if (!exists("splm")) splm = fitPLM(afxsub)
@@ -132,14 +166,14 @@ splm = fitPLM(afxsub)
 #save(splm, file="splm.rda")
 @
 
-<<don>>=
+<<don,eval=FALSE>>=
 png(file="doim.png")
 par(mar=c(7,5,5,5),mfrow=c(2,2),las=2)
 NUSE(splm, ylim=c(.85,1.3))
 RLE(splm)
 image(splm, which=2, type="sign.resid")
 image(splm, which=5, type="sign.resid")
-<<adadadadadad,echo=FALSE,results=hide>>=
+<<adadadadadad,echo=FALSE,results=hide,eval=FALSE>>=
 dev.off()
 @
 \includegraphics{doim}
@@ -153,7 +187,7 @@ different with respect to variability.
 Let's apply the diagnostic-dimension reduction-multivariate 
 outlier procedure \texttt{ArrayOutliers}.
 
-<<doao>>=
+<<doao,eval=FALSE>>=
 AO = ArrayOutliers(afxsub, alpha=0.05, qcOut=afxsubQC, 
   plmOut=splm, degOut=afxsubDEG)
 nrow(AO[["outl"]])
@@ -167,13 +201,13 @@ The third component of our ArrayOutliers result provides
 these as computed using simpleaffy qc(), affy AffyRNAdeg,
 and affyPLM NUSE and RLE.
 The QC measures for the first two chips are:
-<<doaaa>>=
+<<doaaa,eval=FALSE>>=
 AO[[3]][1:2, ]
 @
 
 We now use the mdqc package with MVE robust covariance
 estimation.
-<<doz>>=
+<<doz,eval=FALSE>>=
 library(mdqc)
 mdq = mdqc( AO[[3]], robust="MVE" )
 mdq
