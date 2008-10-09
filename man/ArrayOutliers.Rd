@@ -9,6 +9,7 @@
 \alias{itnQA}
 \alias{maqcQA}
 \alias{ilmQA}
+\alias{fig3map}
 \title{Multivariate outlier detection based on PCA of
 QA statistics  }
 \description{Multivariate outlier detection based on PCA of
@@ -41,8 +42,12 @@ and simpleaffy qc() results; s12c is an AffyBatch with digital contamination of 
 samples.
 
 Data elements maqcQA and itnQA are affymetrix QC statistics on large
-collections of arrays.  Data element ILM1 is a LumiBatch of the Illumina-submitted
+collections of arrays.  Data element ilmQA is a derived from
+a LumiBatch of the Illumina-submitted
 MAQC raw data, 19 arrays.  (Conveyed by Leming Shi, personal communication).
+
+Data element fig3map gives the indices of the points labeled A-H in
+Figure 3 of the manuscript by Asare et al. associated with this package.
 }
 \value{
 an instance of arrOutStruct class, a list with a partition of samples into two data frames (inl and
