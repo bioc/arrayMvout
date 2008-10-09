@@ -8,6 +8,7 @@
 \alias{ILM1}
 \alias{itnQA}
 \alias{maqcQA}
+\alias{ilmQA}
 \title{Multivariate outlier detection based on PCA of
 QA statistics  }
 \description{Multivariate outlier detection based on PCA of
@@ -57,7 +58,9 @@ outl) with QA summary statistics
 \examples{
 library(simpleaffy)
 setQCEnvironment("hgu133acdf")  # tag array not known...
-if (require(mvoutData)) {
+II = installed.packages()
+if ("mvoutData" \%in\% II[,"Package"]) {
+ library(mvoutData)
  data(s12c)
  data(s12cQC)
  data(s12cDEG)
@@ -66,12 +69,20 @@ if (require(mvoutData)) {
  ao = ArrayOutliers(s12c, alpha=0.05, qcOut=s12cQC, plmOut=s12cPset, degOut=s12cDEG)
  ao
  }
-if (require(lumiBarnes)) {
+if ("lumiBarnes" \%in\% II[,"Package"]) {
+ library(lumiBarnes)
  data(lumiBarnes)
  ArrayOutliers(lumiBarnes, alpha=0.05)
  lb2 = lumiBarnes
  exprs(lb2)[1:20000,1:2] = 10000*exprs(lb2)[1:20000,1:2]
  ArrayOutliers(lb2, alpha=0.05)
  }
+data(maqcQA) # affy
+ArrayOutliers(maqcQA[,-c(1:2)], alpha=.05)
+ArrayOutliers(maqcQA[,-c(1:2)], alpha=.01)
+data(ilmQA) # illumina
+ArrayOutliers(data.frame(ilmQA), alpha=.01)
+data(itnQA) # 507 arrays from ITN
+ArrayOutliers(itnQA, alpha=.01)
 }
 \keyword{ models }
