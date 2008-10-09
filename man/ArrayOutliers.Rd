@@ -9,6 +9,7 @@
 \alias{itnQA}
 \alias{maqcQA}
 \alias{ilmQA}
+\alias{spikQA}
 \alias{fig3map}
 \title{Multivariate outlier detection based on PCA of
 QA statistics  }
@@ -45,6 +46,9 @@ Data elements maqcQA and itnQA are affymetrix QC statistics on large
 collections of arrays.  Data element ilmQA is a derived from
 a LumiBatch of the Illumina-submitted
 MAQC raw data, 19 arrays.  (Conveyed by Leming Shi, personal communication).
+Data element spikQA is a 12x9 matrix of QA parameters obtained for
+12 arrays from U133A spikein dataset, with first 2 arrays digitally contaminated
+as described in  Asare et al.
 
 Data element fig3map gives the indices of the points labeled A-H in
 Figure 3 of the manuscript by Asare et al. associated with this package.
