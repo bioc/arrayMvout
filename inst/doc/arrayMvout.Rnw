@@ -1,7 +1,7 @@
 
 %\VignetteIndexEntry{arrayMvout -- multivariate outlier algorithm for expression arrays}
-%\VignetteDepends{}
-%\VignetteKeywords{Expression Analysis}
+%\VignetteDepends{MAQCsubset}
+%\VignetteKeywords{Expression Analysis, QualityAssessment}
 %\VignettePackage{arrayMvout}
 
 

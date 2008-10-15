@@ -12,8 +12,8 @@ setClass("arrOutStruct", representation(call="call"), contains="list")
 ###         Non-outlier arrays with QA metrics
 #########################################################
 
-setGeneric("ArrayOutliers", function(data, alpha, alphaSeq=c(0.01, 0.05, 0.10), ...) {
- standardGeneric("ArrayOutliers") })
+setGeneric("ArrayOutliers", 
+ function(data, alpha, alphaSeq=c(0.01, 0.05, 0.10), ...) standardGeneric("ArrayOutliers") )
 
 setMethod("ArrayOutliers", c("ANY", "missing", "missing"), 
    function( data, alpha, alphaSeq ) stop("must supply second argument: false outlier labeling rate"))

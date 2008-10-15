@@ -66,10 +66,8 @@ outl) with QA summary statistics
 
 \examples{
 library(simpleaffy)
-setQCEnvironment("hgu133acdf")  # tag array not known...
-II = installed.packages()
-if ("mvoutData" \%in\% II[,"Package"]) {
- library(mvoutData)
+setQCEnvironment("hgu133acdf")  # no CDF corresponding to tag array
+if ( require("mvoutData") ) { 
  data(s12c)
  data(s12cQC)
  data(s12cDEG)
@@ -78,7 +76,7 @@ if ("mvoutData" \%in\% II[,"Package"]) {
  ao = ArrayOutliers(s12c, alpha=0.05, qcOut=s12cQC, plmOut=s12cPset, degOut=s12cDEG)
  ao
  }
-if ("lumiBarnes" \%in\% II[,"Package"]) {
+if (require("lumiBarnes")) {
  library(lumiBarnes)
  data(lumiBarnes)
  ArrayOutliers(lumiBarnes, alpha=0.05)

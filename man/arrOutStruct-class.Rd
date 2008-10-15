@@ -8,13 +8,8 @@
 \description{Class "arrOutStruct" container for ArrayOutliers output }
 \section{Objects from the Class}{
 Objects can be created by calls of the form \code{new("arrOutStruct", ...)}.
-}
-\section{Slots}{
-	 \describe{
-    \item{\code{.Data}:}{Object of class \code{"list"} includes
-components outl, inl, with results of outlier detection applied
-to principal components of multivariate QA statistics }
-  }
+This class just extends \code{list} but has specialized \code{show}
+and \code{plot} methods.
 }
 \section{Extends}{
 Class \code{"\linkS4class{list}"}, from data part.
@@ -38,6 +33,9 @@ Class \code{"\linkS4class{AssayData}"}, by class "list", distance 2.
 %	or \code{\linkS4class{CLASSNAME}} for links to other classes
 %}
 \examples{
-showClass("arrOutStruct")
+data(maqcQA)
+f1 = ArrayOutliers(maqcQA[,-c(1:2)], alpha=0.01)
+names(f1)
+f1
 }
 \keyword{classes}
