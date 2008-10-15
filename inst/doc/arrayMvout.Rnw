@@ -55,6 +55,20 @@ measures of clinical conditions and treatment
 responses at the level of mRNA abundance.
 Objective, quantitative measures of array
 quality are important to support these projects.
+Numerous packages in Bioconductor address quality
+assessment procedures.  \textit{ArrayQualityMetrics}
+is a particularly attractive set of tools.  We
+provide \textit{arrayMvout} as a module that performs
+parametric outlier detection after data reduction to
+support formal decisionmaking about array acceptability.
+Ultimately the measures and procedures provided by
+\textit{arrayMvout} may be useful as components of other
+packages for quality assessment.  Another closely
+related package is \textit{mdqc}, which employs a
+variety of robustifications of Mahalanobis distance to
+help identify outlying arrays.
+
+
 
 Suppose there are $N$ affymetrix arrays to which $N$
 independent samples have been hybridized.
@@ -92,6 +106,7 @@ mm
 
 There are no outliers found at a false labeling rate of 0.01.
 
+\section{Illustration with arrays from a clinical trial network}
 
 Another data resource with some problematic arrays is also included.
 <<dde>>=
@@ -105,7 +120,281 @@ We have a simple visualization.
 plot(ii, choices=c(1,3))
 @
 
+
 \section{Manual work with the MAQC subset}
+
+The remaining text of this vignette is computed statically.  The
+source code with eval=FALSE is given as an appendix.
+
+We consider an AffyBatch supplied with the Bioconductor
+MAQCsubset package.  Marginal boxplots of raw intensity
+data are provided in the next figure.   Sample labels
+are decoded AFX \_ [lab] \_ [type] [replicate] .CEL
+where [lab] $\in (1,2,3)$, [type] denotes mixture
+type (A = 100\% USRNA, B = 100\% Ambion brain, C = 75\% USRNA,
+25\% brain, D = 25\% USRNA, 75\% brain), and replicate $\in (1,2)$.
+
+\begin{Schunk}
+\begin{Sinput}
+> library(arrayMvout)
+> library(MAQCsubset)
+> if (!exists("afxsub")) data(afxsub)
+> sn = sampleNames(afxsub)
+> if (nchar(sn)[1] > 6) {
++     sn = substr(sn, 3, 8)
++     sampleNames(afxsub) = sn
++ }
+\end{Sinput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Sinput}
+> opar = par(no.readonly = TRUE)
+> par(mar = c(10, 5, 5, 5), las = 2)
+> boxplot(afxsub, main = "MAQC subset", col = rep(c("green", "blue", 
++     "orange"), c(8, 8, 8)))
+> par(opar)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{arrayMvout-lkda}
+
+\subsection{QA diagnostics}
+
+Of interest are measures of RNA degradation:
+\begin{Schunk}
+\begin{Sinput}
+> library(arrayMvout)
+> data(afxsubDEG)
+> plotAffyRNAdeg(afxsubDEG, col = rep(c("green", "blue", "orange"), 
++     c(8, 8, 8)))
+\end{Sinput}
+\end{Schunk}
+\includegraphics{arrayMvout-lkadas}
+
+and the general `simpleaffy' QC display:
+\begin{Schunk}
+\begin{Sinput}
+> data(afxsubQC)
+> plot(afxsubQC)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{arrayMvout-asdad}
+
+The affyPLM package fits probe-level robust regressions
+to obtain probe-set summaries.  
+
+\begin{Schunk}
+\begin{Sinput}
+> library(affyPLM)
+> splm = fitPLM(afxsub)
+\end{Sinput}
+\end{Schunk}
+
+\begin{Schunk}
+\begin{Sinput}
+> png(file = "doim.png")
+> par(mar = c(7, 5, 5, 5), mfrow = c(2, 2), las = 2)
+> NUSE(splm, ylim = c(0.85, 1.3))
+> RLE(splm)
+> image(splm, which = 2, type = "sign.resid")
+> image(splm, which = 5, type = "sign.resid")
+\end{Sinput}
+\end{Schunk}
+\includegraphics{doim}
+
+These chips seem to have adequate quality, although
+there is some indication that the first four are a bit
+different with respect to variability.
+
+\subsection{Outlier detection using diagnostics}
+
+Let's apply the diagnostic-dimension reduction-multivariate 
+outlier procedure \texttt{ArrayOutliers}.
+
+\begin{Schunk}
+\begin{Sinput}
+> AO = ArrayOutliers(afxsub, alpha = 0.05, qcOut = afxsubQC, plmOut = splm, 
++     degOut = afxsubDEG)
+> nrow(AO[["outl"]])
+\end{Sinput}
+\begin{Soutput}
+[1] 0
+\end{Soutput}
+\end{Schunk}
+
+We see that there are no outliers declared.  This seems
+a reasonable result for arrays that were hybridized in the
+context of a QC protocol.  Let us apply the mdqc procedure.
+As input this takes any matrix of quality indicators.
+The third component of our ArrayOutliers result provides
+these as computed using simpleaffy qc(), affy AffyRNAdeg,
+and affyPLM NUSE and RLE.
+The QC measures for the first two chips are:
+\begin{Schunk}
+\begin{Sinput}
+> AO[[3]][1:2, ]
+\end{Sinput}
+\begin{Soutput}
+          avgBG        SF  Present   HSACO7    GAPDH     NUSE        RLE
+X_1_A1 60.05505 1.1765695 52.42250 1.245477 1.065898 1.064069 0.04163564
+X_1_A2 52.42248 0.9459093 54.63009 1.273977 1.094208 1.040718 0.03253112
+         RLE_IQR RNAslope
+X_1_A1 0.5626532 3.141527
+X_1_A2 0.5459847 3.210157
+\end{Soutput}
+\end{Schunk}
+
+We now use the mdqc package with MVE robust covariance
+estimation.
+\begin{Schunk}
+\begin{Sinput}
+> library(mdqc)
+> mdq = mdqc(AO[[3]], robust = "MVE")
+> mdq
+\end{Sinput}
+\begin{Soutput}
+Method used: nogroups 	Number of groups: 1 
+Robust estimator: MVEMDs exceeding the square root of the  90 % percentile of the Chi-Square distribution
+[1]  6 16 17 18 21 24
+MDs exceeding the square root of the  95 % percentile of the Chi-Square distribution
+[1]  6 16 17 18 21 24
+MDs exceeding the square root of the  99 % percentile of the Chi-Square distribution
+[1]  6 16 17 18 21 24
+\end{Soutput}
+\end{Schunk}
+We see that a number of the arrays are determined to
+be outlying by this procedure according to several thresholds.
+
+
+\section{Intensity contamination in the spikein data}
+
+We begin with a simple demonstration of a contamination
+procedure that simulates severe blobby interference with
+hybridization.
+
+The code below is unevaluated to speed execution.  Set eval=TRUE
+on all chunks to see the actual process.
+
+\begin{Schunk}
+\begin{Sinput}
+> require(mvoutData)
+> data(s12c)
+\end{Sinput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Sinput}
+> image(s12c[, 1])
+\end{Sinput}
+\end{Schunk}
+
+\includegraphics{s12c}
+
+For this AffyBatch instance, we have contaminated the first two
+arrays in this way.  We now apply the ArrayOutliers procedure:
+
+\begin{Schunk}
+\begin{Sinput}
+> aos12c = ArrayOutliers(s12c, alpha = 0.05)
+\end{Sinput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Sinput}
+> aos12c[[1]]
+\end{Sinput}
+\begin{Soutput}
+                                      samp      avgBG       SF  Present
+1 12_13_02_U133A_Mer_Latin_Square_Expt1_R1 7205.48413 5.494978 19.05381
+2 12_13_02_U133A_Mer_Latin_Square_Expt2_R1 7205.12544 5.801398 17.62332
+8 12_13_02_U133A_Mer_Latin_Square_Expt8_R1   31.23121 1.181946 45.47982
+    HSACO7     GAPDH     NUSE          RLE    RLE_IQR    RNAslope
+1 9.488671 8.6364494 1.578471 -0.514913919 1.33150311 -0.05195296
+2 8.517500 9.7475845 1.579164 -0.514617696 1.37213796 -0.07638096
+8 1.042255 0.8965249 1.000006  0.001987620 0.09164597  1.53050152
+\end{Soutput}
+\end{Schunk}
+We find three arrays declared to be outlying.  At the different
+candidate significance levels we have:
+\begin{Schunk}
+\begin{Sinput}
+> aos12c[[4]]
+\end{Sinput}
+\begin{Soutput}
+[[1]]
+[[1]]$inds
+[1] 1 2
+
+[[1]]$vals
+           PC1         PC2         PC3
+[1,] -6.345625  0.08184738  0.05419247
+[2,] -6.485447 -0.07281758 -0.05421514
+
+[[1]]$k
+[1] 5
+
+[[1]]$alpha
+[1] 0.01
+
+
+[[2]]
+[[2]]$inds
+[1] 8 1 2
+
+[[2]]$vals
+           PC1         PC2          PC3
+[1,]  1.104062 -0.18796407 -0.008319271
+[2,] -6.345625  0.08184738  0.054192469
+[3,] -6.485447 -0.07281758 -0.054215145
+
+[[2]]$k
+[1] 5
+
+[[2]]$alpha
+[1] 0.05
+
+
+[[3]]
+[[3]]$inds
+[1] 8 1 2
+
+[[3]]$vals
+           PC1         PC2          PC3
+[1,]  1.104062 -0.18796407 -0.008319271
+[2,] -6.345625  0.08184738  0.054192469
+[3,] -6.485447 -0.07281758 -0.054215145
+
+[[3]]$k
+[1] 5
+
+[[3]]$alpha
+[1] 0.1
+\end{Soutput}
+\end{Schunk}
+So at the 0.01 level we have identified only the contaminated arrays.
+
+We apply mdqc in the same manner.
+\begin{Schunk}
+\begin{Sinput}
+> mdqc(aos12c[[3]], robust = "MVE")
+\end{Sinput}
+\begin{Soutput}
+Method used: nogroups 	Number of groups: 1 
+Robust estimator: MVEMDs exceeding the square root of the  90 % percentile of the Chi-Square distribution
+[1] 2
+MDs exceeding the square root of the  95 % percentile of the Chi-Square distribution
+[1] 2
+MDs exceeding the square root of the  99 % percentile of the Chi-Square distribution
+[1] 2
+\end{Soutput}
+\end{Schunk}
+
+We see that only one of the contaminated arrays is identified by
+this procedure.
+This may be an instance of masking.
+
+\section{Appendix: Sources and text for statically computed
+sections with eval set to false}
+
+
+\section*{Manual work with the MAQC subset}
 
 All the code follwing has had evaluation turned off
 because execution times are slow.
@@ -135,7 +424,7 @@ boxplot(afxsub, main="MAQC subset",
 par(opar)
 @
 
-\subsection{QA diagnostics}
+\subsection*{QA diagnostics}
 
 Of interest are measures of RNA degradation:
 <<lkadas,fig=TRUE,eval=FALSE>>=
@@ -176,13 +465,13 @@ image(splm, which=5, type="sign.resid")
 <<adadadadadad,echo=FALSE,results=hide,eval=FALSE>>=
 dev.off()
 @
-\includegraphics{doim}
+%\includegraphics{doim}
 
 These chips seem to have adequate quality, although
 there is some indication that the first four are a bit
 different with respect to variability.
 
-\subsection{Outlier detection using diagnostics}
+\subsection*{Outlier detection using diagnostics}
 
 Let's apply the diagnostic-dimension reduction-multivariate 
 outlier procedure \texttt{ArrayOutliers}.
@@ -216,7 +505,7 @@ We see that a number of the arrays are determined to
 be outlying by this procedure according to several thresholds.
 
 
-\section{Intensity contamination in the spikein data}
+\section*{Intensity contamination in the spikein data}
 
 We begin with a simple demonstration of a contamination
 procedure that simulates severe blobby interference with
@@ -232,7 +521,7 @@ data(s12c)
 image(s12c[,1])
 @
 
-\includegraphics{s12c}
+%\includegraphics{s12c}
 
 For this AffyBatch instance, we have contaminated the first two
 arrays in this way.  We now apply the ArrayOutliers procedure:
@@ -258,7 +547,8 @@ We see that only one of the contaminated arrays is identified by
 this procedure.
 This may be an instance of masking.
 
-<<lksess>>=
+
+<<DoSessionInfo>>=
 sessionInfo()
 @
 
