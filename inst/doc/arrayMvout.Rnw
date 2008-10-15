@@ -199,6 +199,11 @@ to obtain probe-set summaries.
 > image(splm, which = 5, type = "sign.resid")
 \end{Sinput}
 \end{Schunk}
+
+In the following graphic, we have the NUSE distributions (upper left),
+the RLE distributions (upper right), and second and fifth chips
+in signed residuals displays.
+
 \includegraphics{doim}
 
 These chips seem to have adequate quality, although
