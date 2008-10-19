@@ -14,7 +14,8 @@ and \code{plot} methods.
 \section{Extends}{
 Class \code{"\linkS4class{list}"}, from data part.
 Class \code{"\linkS4class{vector}"}, by class "list", distance 2.
-Class \code{\link[Biobase:class.AssayData]}, by class "list", distance 2.
+Class \code{\link[Biobase:class.AssayData]{AssayData}}, by class "list", 
+distance 2.
 }
 \section{Methods}{
   \describe{
@@ -22,16 +23,8 @@ Class \code{\link[Biobase:class.AssayData]}, by class "list", distance 2.
     \item{show}{\code{signature(object = "arrOutStruct")}: summary report }
 	 }
 }
-%\references{ ~put references to the literature/web site here ~ }
 \author{ Vince Carey <stvjc@channing.harvard.edu> }
-%\note{ ~~further notes~~ }
 
-% ~Make other sections like Warning with \section{Warning }{....} ~
-
-%\seealso{
-%	~~objects to See Also as \code{\link{~~fun~~}}, ~~~
-%	or \code{\linkS4class{CLASSNAME}} for links to other classes
-%}
 \examples{
 data(maqcQA)
 f1 = ArrayOutliers(maqcQA[,-c(1:2)], alpha=0.01)
