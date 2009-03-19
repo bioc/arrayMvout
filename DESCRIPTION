@@ -1,6 +1,6 @@
 Package: arrayMvout
 Title: multivariate outlier detection for expression array QA
-Version: 1.1.1
+Version: 1.1.2
 Author: Z. Gao, A. Asare, R. Wang, V. Carey
 Description: This package supports the application of diverse quality metrics to
 	AffyBatch instances, summarizing these metrics via PCA, and then
@@ -12,4 +12,4 @@ Imports: simpleaffy, mdqc, affyContam,
 Maintainer: V. Carey <stvjc@channing.harvard.edu>
 License: The Artistic License, Version 2.0
 LazyLoad: yes
-biocViews: Infrastructure, Statistics, Microarray, QualityControl
+biocViews: Infrastructure, Bioinformatics, Microarray, QualityControl
