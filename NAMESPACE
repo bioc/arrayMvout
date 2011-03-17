@@ -2,9 +2,6 @@
 import(tools)
 import( simpleaffy, mdqc, affyContam)
 
-
-importFrom("graphics", "plot")
-
 exportClasses("arrOutStruct")
 
 exportMethods(ArrayOutliers, plot, show)
