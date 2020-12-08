@@ -1,8 +1,16 @@
 
 import(tools)
-import( simpleaffy, mdqc, affyContam)
+import( mdqc, affyContam)
+
+import(Biobase) 
+import(affy)
+import(lumi, except=c(plotDensity, MAplot))
+import(methods)
+import(parody)
+
+export(plot)
 
 exportClasses("arrOutStruct")
 
-exportMethods(ArrayOutliers, plot, show)
+exportMethods(ArrayOutliers, show)
 

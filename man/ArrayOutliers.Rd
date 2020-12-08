@@ -65,6 +65,7 @@ outl) with QA summary statistics
 %\seealso{  }
 
 \examples{
+\dontrun{
 library(simpleaffy)
 setQCEnvironment("hgu133acdf")  # no CDF corresponding to tag array
 if ( require("mvoutData") ) { 
@@ -91,5 +92,6 @@ data(ilmQA) # illumina
 ArrayOutliers(data.frame(ilmQA), alpha=.01)
 data(itnQA) # 507 arrays from ITN
 ArrayOutliers(itnQA, alpha=.01)
+}
 }
 \keyword{ models }
