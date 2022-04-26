@@ -1,6 +1,6 @@
 Package: arrayMvout
 Title: multivariate outlier detection for expression array QA
-Version: 1.54.0
+Version: 1.55.0
 Author: Z. Gao, A. Asare, R. Wang, V. Carey
 Description: This package supports the application of diverse quality
         metrics to AffyBatch instances, summarizing these metrics via
